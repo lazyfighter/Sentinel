@@ -56,9 +56,13 @@ public abstract class Entry implements AutoCloseable {
      * 创建时间
      */
     private long createTime;
+
+    /**
+     * 当前node
+     */
     private Node curNode;
     /**
-     * {@link Node} of the specific origin, Usually the origin is the Service Consumer.
+     * 来源数据统计node
      */
     private Node originNode;
     private Throwable error;

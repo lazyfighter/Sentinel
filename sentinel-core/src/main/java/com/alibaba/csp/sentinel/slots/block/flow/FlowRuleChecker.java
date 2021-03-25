@@ -15,14 +15,12 @@
  */
 package com.alibaba.csp.sentinel.slots.block.flow;
 
-import java.util.Collection;
-
 import com.alibaba.csp.sentinel.cluster.ClusterStateManager;
-import com.alibaba.csp.sentinel.cluster.server.EmbeddedClusterTokenServerProvider;
-import com.alibaba.csp.sentinel.cluster.client.TokenClientProvider;
-import com.alibaba.csp.sentinel.cluster.TokenResultStatus;
 import com.alibaba.csp.sentinel.cluster.TokenResult;
+import com.alibaba.csp.sentinel.cluster.TokenResultStatus;
 import com.alibaba.csp.sentinel.cluster.TokenService;
+import com.alibaba.csp.sentinel.cluster.client.TokenClientProvider;
+import com.alibaba.csp.sentinel.cluster.server.EmbeddedClusterTokenServerProvider;
 import com.alibaba.csp.sentinel.context.Context;
 import com.alibaba.csp.sentinel.log.RecordLog;
 import com.alibaba.csp.sentinel.node.DefaultNode;
@@ -34,6 +32,8 @@ import com.alibaba.csp.sentinel.slots.clusterbuilder.ClusterBuilderSlot;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.csp.sentinel.util.function.Function;
 
+import java.util.Collection;
+
 /**
  * Rule checker for flow control rules.
  *
@@ -41,8 +41,7 @@ import com.alibaba.csp.sentinel.util.function.Function;
  */
 public class FlowRuleChecker {
 
-    public void checkFlow(Function<String, Collection<FlowRule>> ruleProvider, ResourceWrapper resource,
-                          Context context, DefaultNode node, int count, boolean prioritized) throws BlockException {
+    public void checkFlow(Function<String, Collection<FlowRule>> ruleProvider, ResourceWrapper resource, Context context, DefaultNode node, int count, boolean prioritized) throws BlockException {
         if (ruleProvider == null || resource == null) {
             return;
         }
@@ -56,13 +55,11 @@ public class FlowRuleChecker {
         }
     }
 
-    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node,
-                                                    int acquireCount) {
+    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount) {
         return canPassCheck(rule, context, node, acquireCount, false);
     }
 
-    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount,
-                                                    boolean prioritized) {
+    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount, boolean prioritized) {
         String limitApp = rule.getLimitApp();
         if (limitApp == null) {
             return true;

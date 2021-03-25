@@ -25,7 +25,7 @@ import com.alibaba.csp.sentinel.slotchain.ProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 
 /**
- * A {@link ProcessorSlot} that dedicates to {@link AuthorityRule} checking.
+ * 白名单或者黑名单单校验器
  *
  * @author leyou
  * @author Eric Zhao
@@ -33,8 +33,7 @@ import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 public class AuthoritySlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
     @Override
-    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args)
-        throws Throwable {
+    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args) throws Throwable {
         checkBlackWhiteAuthority(resourceWrapper, context);
         fireEntry(context, resourceWrapper, node, count, prioritized, args);
     }

@@ -42,8 +42,17 @@ public class DefaultSlotChainBuilder implements SlotChainBuilder {
         chain.addLast(new ClusterBuilderSlot());
         chain.addLast(new LogSlot());
         chain.addLast(new StatisticSlot());
+        /**
+         * 黑白名单校验， 用于校验请求来源
+         */
         chain.addLast(new AuthoritySlot());
+        /**
+         * 系统规则校验， 用于校验当前系统状态是否超过了用户配置的阈值
+         */
         chain.addLast(new SystemSlot());
+        /**
+         *
+         */
         chain.addLast(new FlowSlot());
         chain.addLast(new DegradeSlot());
 

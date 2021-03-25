@@ -130,8 +130,7 @@ public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
     private volatile Map<String, DefaultNode> map = new HashMap<>(10);
 
     @Override
-    public void entry(Context context, ResourceWrapper resourceWrapper, Object obj, int count, boolean prioritized, Object... args)
-            throws Throwable {
+    public void entry(Context context, ResourceWrapper resourceWrapper, Object obj, int count, boolean prioritized, Object... args) throws Throwable {
         DefaultNode node = map.get(context.getName());
         if (node == null) {
             synchronized (this) {

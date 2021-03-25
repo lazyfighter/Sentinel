@@ -15,13 +15,6 @@
  */
 package com.alibaba.csp.sentinel.slots.system;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.alibaba.csp.sentinel.Constants;
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.concurrent.NamedThreadFactory;
@@ -31,6 +24,13 @@ import com.alibaba.csp.sentinel.property.SentinelProperty;
 import com.alibaba.csp.sentinel.property.SimplePropertyListener;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>
@@ -65,32 +65,64 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  */
 public final class SystemRuleManager {
 
+    /**
+     * 最大系统负载
+     */
     private static volatile double highestSystemLoad = Double.MAX_VALUE;
     /**
-     * cpu usage, between [0, 1]
+     * 最大CPU负载，区间[0, 1]，  0 表示CPU空闲状态，  1表示所有CPU处于100%负载
      */
     private static volatile double highestCpuUsage = Double.MAX_VALUE;
     private static volatile double qps = Double.MAX_VALUE;
     private static volatile long maxRt = Long.MAX_VALUE;
     private static volatile long maxThread = Long.MAX_VALUE;
     /**
-     * mark whether the threshold are set by user.
+     * 用户是否设置最大系统负载
      */
     private static volatile boolean highestSystemLoadIsSet = false;
+    /**
+     * 用户是否设置最大CPU负载
+     */
     private static volatile boolean highestCpuUsageIsSet = false;
+
+    /**
+     * 用户是否设置最大QPS
+     */
     private static volatile boolean qpsIsSet = false;
+    /**
+     * 用户是否设置最大RT
+     */
     private static volatile boolean maxRtIsSet = false;
+    /**
+     * 用户是否设置最大请求线程
+     */
     private static volatile boolean maxThreadIsSet = false;
 
+    /**
+     * 是否检查系统状态，默认不进行检查
+     */
     private static AtomicBoolean checkSystemStatus = new AtomicBoolean(false);
 
-    private static SystemStatusListener statusListener = null;
-    private final static SystemPropertyListener listener = new SystemPropertyListener();
-    private static SentinelProperty<List<SystemRule>> currentProperty = new DynamicSentinelProperty<List<SystemRule>>();
+    /**
+     * 系统状态监听执行器，用于定期检查系统的负载是否超过阈值
+     */
+    private static SystemStatusListener statusListener;
 
+    /**
+     * 系统规则配置监听器，
+     */
+    private final static SystemPropertyListener listener = new SystemPropertyListener();
+
+    /**
+     * 当前配置的系统负载规则
+     */
+    private static SentinelProperty<List<SystemRule>> currentProperty = new DynamicSentinelProperty<>();
+
+    /**
+     * 定时调度器， 用于定时调度SystemStatusListener，当超过阈值是，定时打印系统当前负载
+     */
     @SuppressWarnings("PMD.ThreadPoolCreationRule")
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
-        new NamedThreadFactory("sentinel-system-status-record-task", true));
+    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new NamedThreadFactory("sentinel-system-status-record-task", true));
 
     static {
         checkSystemStatus.set(false);
@@ -130,7 +162,7 @@ public final class SystemRuleManager {
      */
     public static List<SystemRule> getRules() {
 
-        List<SystemRule> result = new ArrayList<SystemRule>();
+        List<SystemRule> result = new ArrayList<>();
         if (!checkSystemStatus.get()) {
             return result;
         }
@@ -195,17 +227,17 @@ public final class SystemRuleManager {
             }
 
             RecordLog.info(String.format("[SystemRuleManager] Current system check status: %s, "
-                    + "highestSystemLoad: %e, "
-                    + "highestCpuUsage: %e, "
-                    + "maxRt: %d, "
-                    + "maxThread: %d, "
-                    + "maxQps: %e",
-                checkSystemStatus.get(),
-                highestSystemLoad,
-                highestCpuUsage,
-                maxRt,
-                maxThread,
-                qps));
+                            + "highestSystemLoad: %e, "
+                            + "highestCpuUsage: %e, "
+                            + "maxRt: %d, "
+                            + "maxThread: %d, "
+                            + "maxQps: %e",
+                    checkSystemStatus.get(),
+                    highestSystemLoad,
+                    highestCpuUsage,
+                    maxRt,
+                    maxThread,
+                    qps));
         }
 
         protected void restoreSetting() {
@@ -252,7 +284,7 @@ public final class SystemRuleManager {
         if (rule.getHighestCpuUsage() >= 0) {
             if (rule.getHighestCpuUsage() > 1) {
                 RecordLog.warn(String.format("[SystemRuleManager] Ignoring invalid SystemRule: "
-                    + "highestCpuUsage %.3f > 1", rule.getHighestCpuUsage()));
+                        + "highestCpuUsage %.3f > 1", rule.getHighestCpuUsage()));
             } else {
                 highestCpuUsage = Math.min(highestCpuUsage, rule.getHighestCpuUsage());
                 highestCpuUsageIsSet = true;
@@ -333,7 +365,7 @@ public final class SystemRuleManager {
 
     private static boolean checkBbr(int currentThread) {
         if (currentThread > 1 &&
-            currentThread > Constants.ENTRY_NODE.maxSuccessQps() * Constants.ENTRY_NODE.minRt() / 1000) {
+                currentThread > Constants.ENTRY_NODE.maxSuccessQps() * Constants.ENTRY_NODE.minRt() / 1000) {
             return false;
         }
         return true;
