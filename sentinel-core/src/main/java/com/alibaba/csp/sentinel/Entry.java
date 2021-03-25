@@ -15,11 +15,11 @@
  */
 package com.alibaba.csp.sentinel;
 
-import com.alibaba.csp.sentinel.util.TimeUtil;
+import com.alibaba.csp.sentinel.context.Context;
 import com.alibaba.csp.sentinel.context.ContextUtil;
 import com.alibaba.csp.sentinel.node.Node;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
-import com.alibaba.csp.sentinel.context.Context;
+import com.alibaba.csp.sentinel.util.TimeUtil;
 
 /**
  * Each {@link SphU}#entry() will return an {@link Entry}. This class holds information of current invocation:<br/>
@@ -52,6 +52,9 @@ public abstract class Entry implements AutoCloseable {
 
     private static final Object[] OBJECTS0 = new Object[0];
 
+    /**
+     * 创建时间
+     */
     private long createTime;
     private Node curNode;
     /**
@@ -59,6 +62,9 @@ public abstract class Entry implements AutoCloseable {
      */
     private Node originNode;
     private Throwable error;
+    /**
+     * 资源名称
+     */
     protected ResourceWrapper resourceWrapper;
 
     public Entry(ResourceWrapper resourceWrapper) {
@@ -97,7 +103,7 @@ public abstract class Entry implements AutoCloseable {
      * Exit this entry. This method should invoke if and only if once at the end of the resource protection.
      *
      * @param count tokens to release.
-     * @param args extra parameters
+     * @param args  extra parameters
      * @throws ErrorEntryFreeException, if {@link Context#getCurEntry()} is not this entry.
      */
     public abstract void exit(int count, Object... args) throws ErrorEntryFreeException;
@@ -106,7 +112,7 @@ public abstract class Entry implements AutoCloseable {
      * Exit this entry.
      *
      * @param count tokens to release.
-     * @param args extra parameters
+     * @param args  extra parameters
      * @return next available entry after exit, that is the parent entry.
      * @throws ErrorEntryFreeException, if {@link Context#getCurEntry()} is not this entry.
      */

@@ -30,10 +30,24 @@ import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
  */
 class CtEntry extends Entry {
 
+    /**
+     * 上一个资源请求
+     */
     protected Entry parent = null;
+
+    /**
+     * 下一个资源请求
+     */
     protected Entry child = null;
 
+    /**
+     * 处理链
+     */
     protected ProcessorSlot<Object> chain;
+
+    /**
+     * 资源上下文
+     */
     protected Context context;
 
     CtEntry(ResourceWrapper resourceWrapper, ProcessorSlot<Object> chain, Context context) {
@@ -44,15 +58,24 @@ class CtEntry extends Entry {
         setUpEntryFor(context);
     }
 
+
+    /**
+     * 设置context， 如果当前处理的请求为空，则设置为自己
+     * 如果当前处理的请求不为空， 则放在当前处理请求的字节点
+     *
+     * @param context
+     */
     private void setUpEntryFor(Context context) {
         // The entry should not be associated to NullContext.
         if (context instanceof NullContext) {
             return;
         }
         this.parent = context.getCurEntry();
+
         if (parent != null) {
-            ((CtEntry)parent).child = this;
+            ((CtEntry) parent).child = this;
         }
+
         context.setCurEntry(this);
     }
 
@@ -70,13 +93,13 @@ class CtEntry extends Entry {
             if (context.getCurEntry() != this) {
                 String curEntryNameInContext = context.getCurEntry() == null ? null : context.getCurEntry().getResourceWrapper().getName();
                 // Clean previous call stack.
-                CtEntry e = (CtEntry)context.getCurEntry();
+                CtEntry e = (CtEntry) context.getCurEntry();
                 while (e != null) {
                     e.exit(count, args);
-                    e = (CtEntry)e.parent;
+                    e = (CtEntry) e.parent;
                 }
                 String errorMessage = String.format("The order of entry exit can't be paired with the order of entry"
-                    + ", current entry in context: <%s>, but expected: <%s>", curEntryNameInContext, resourceWrapper.getName());
+                        + ", current entry in context: <%s>, but expected: <%s>", curEntryNameInContext, resourceWrapper.getName());
                 throw new ErrorEntryFreeException(errorMessage);
             } else {
                 if (chain != null) {
@@ -85,7 +108,7 @@ class CtEntry extends Entry {
                 // Restore the call stack.
                 context.setCurEntry(parent);
                 if (parent != null) {
-                    ((CtEntry)parent).child = null;
+                    ((CtEntry) parent).child = null;
                 }
                 if (parent == null) {
                     // Default context (auto entered) will be exited automatically.

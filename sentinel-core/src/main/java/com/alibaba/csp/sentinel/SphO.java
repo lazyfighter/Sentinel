@@ -35,7 +35,8 @@ import com.alibaba.csp.sentinel.slots.system.SystemRuleManager;
  *
  * <p>
  * To configure the criteria, we can use <code>XXXRuleManager.loadRules()</code> to add rules. eg.
- * {@link FlowRuleManager#loadRules(List)}, {@link DegradeRuleManager#loadRules(List)},
+ * {@link FlowRuleManager#loadRules(List)},
+ * {@link DegradeRuleManager#loadRules(List)},
  * {@link SystemRuleManager#loadRules(List)}.
  * </p>
  *

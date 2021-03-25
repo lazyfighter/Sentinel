@@ -92,9 +92,7 @@ public class MetricWriter {
         if (singleFileSize <= 0 || totalFileCount <= 0) {
             throw new IllegalArgumentException();
         }
-        RecordLog.info(
-            "[MetricWriter] Creating new MetricWriter, singleFileSize=" + singleFileSize + ", totalFileCount="
-                + totalFileCount);
+        RecordLog.info("[MetricWriter] Creating new MetricWriter, singleFileSize=" + singleFileSize + ", totalFileCount=" + totalFileCount);
         this.baseDir = METRIC_BASE_DIR;
         File dir = new File(baseDir);
         if (!dir.exists()) {

@@ -38,8 +38,7 @@ public interface ProcessorSlot<T> {
      * @param args            parameters of the original call
      * @throws Throwable blocked exception or unexpected error
      */
-    void entry(Context context, ResourceWrapper resourceWrapper, T param, int count, boolean prioritized,
-               Object... args) throws Throwable;
+    void entry(Context context, ResourceWrapper resourceWrapper, T param, int count, boolean prioritized, Object... args) throws Throwable;
 
     /**
      * Means finish of {@link #entry(Context, ResourceWrapper, Object, int, boolean, Object...)}.

@@ -33,12 +33,11 @@ import com.alibaba.csp.sentinel.slots.clusterbuilder.ClusterBuilderSlot;
  */
 public class MetricTimerListener implements Runnable {
 
-    private static final MetricWriter metricWriter = new MetricWriter(SentinelConfig.singleMetricFileSize(),
-        SentinelConfig.totalMetricFileCount());
+    private static final MetricWriter metricWriter = new MetricWriter(SentinelConfig.singleMetricFileSize(), SentinelConfig.totalMetricFileCount());
 
     @Override
     public void run() {
-        Map<Long, List<MetricNode>> maps = new TreeMap<Long, List<MetricNode>>();
+        Map<Long, List<MetricNode>> maps = new TreeMap<>();
         for (Entry<ResourceWrapper, ClusterNode> e : ClusterBuilderSlot.getClusterNodeMap().entrySet()) {
             String name = e.getKey().getName();
             ClusterNode node = e.getValue();

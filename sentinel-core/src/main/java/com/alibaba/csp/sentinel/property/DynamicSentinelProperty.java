@@ -24,6 +24,7 @@ import com.alibaba.csp.sentinel.log.RecordLog;
 public class DynamicSentinelProperty<T> implements SentinelProperty<T> {
 
     protected Set<PropertyListener<T>> listeners = Collections.synchronizedSet(new HashSet<PropertyListener<T>>());
+
     private T value = null;
 
     public DynamicSentinelProperty() {

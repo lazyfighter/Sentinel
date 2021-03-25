@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.alibaba.csp.sentinel.slots.block.AbstractRule</OriginalElement>
+  <nodes>
+    <node x="465.0" y="166.0">com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule</node>
+    <node x="0.0" y="166.0">com.alibaba.csp.sentinel.slots.system.SystemRule</node>
+    <node x="298.0" y="166.0">com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule</node>
+    <node x="293.5" y="83.0">com.alibaba.csp.sentinel.slots.block.AbstractRule</node>
+    <node x="650.0" y="166.0">com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule</node>
+    <node x="329.5" y="0.0">com.alibaba.csp.sentinel.slots.block.Rule</node>
+    <node x="158.0" y="166.0">com.alibaba.csp.sentinel.slots.block.flow.FlowRule</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule" target="com.alibaba.csp.sentinel.slots.block.AbstractRule">
+      <point x="0.0" y="-16.5" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule" target="com.alibaba.csp.sentinel.slots.block.AbstractRule">
+      <point x="0.0" y="-16.5" />
+      <point x="732.5" y="136.0" />
+      <point x="433.9" y="136.0" />
+      <point x="62.39999999999998" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule" target="com.alibaba.csp.sentinel.slots.block.AbstractRule">
+      <point x="0.0" y="-16.5" />
+      <point x="547.5" y="146.0" />
+      <point x="402.7" y="146.0" />
+      <point x="31.19999999999999" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.system.SystemRule" target="com.alibaba.csp.sentinel.slots.block.AbstractRule">
+      <point x="0.0" y="-16.5" />
+      <point x="69.0" y="136.0" />
+      <point x="309.1" y="136.0" />
+      <point x="-62.39999999999998" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.block.AbstractRule" target="com.alibaba.csp.sentinel.slots.block.Rule">
+      <point x="0.0" y="-16.5" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.block.flow.FlowRule" target="com.alibaba.csp.sentinel.slots.block.AbstractRule">
+      <point x="0.0" y="-16.5" />
+      <point x="218.0" y="146.0" />
+      <point x="340.3" y="146.0" />
+      <point x="-31.19999999999999" y="16.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="407.5" y="99.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

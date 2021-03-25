@@ -56,8 +56,7 @@ public final class Constants {
     /**
      * Global ROOT statistic node that represents the universal parent node.
      */
-    public final static DefaultNode ROOT = new EntranceNode(new StringResourceWrapper(ROOT_ID, EntryType.IN),
-        new ClusterNode());
+    public final static DefaultNode ROOT = new EntranceNode(new StringResourceWrapper(ROOT_ID, EntryType.IN), new ClusterNode());
 
     /**
      * Global statistic node for inbound traffic. Usually used for {@link SystemRule} checking.
