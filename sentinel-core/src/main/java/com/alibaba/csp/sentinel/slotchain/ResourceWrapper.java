@@ -53,7 +53,7 @@ public abstract class ResourceWrapper {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ResourceWrapper) {
-            ResourceWrapper rw = (ResourceWrapper)obj;
+            ResourceWrapper rw = (ResourceWrapper) obj;
             return rw.getName().equals(getName());
         }
         return false;

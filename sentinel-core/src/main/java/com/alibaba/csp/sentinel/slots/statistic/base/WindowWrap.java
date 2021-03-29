@@ -25,17 +25,17 @@ package com.alibaba.csp.sentinel.slots.statistic.base;
 public class WindowWrap<T> {
 
     /**
-     * Time length of a single window bucket in milliseconds.
+     * 时间窗口长度
      */
     private final long windowLengthInMs;
 
     /**
-     * Start timestamp of the window in milliseconds.
+     * 时间窗口起始时间
      */
     private long windowStart;
 
     /**
-     * Statistic data.
+     * 统计数据
      */
     private T value;
 
@@ -78,11 +78,7 @@ public class WindowWrap<T> {
     }
 
     /**
-     * Check whether given timestamp is in current bucket.
-     *
-     * @param timeMillis valid timestamp in ms
-     * @return true if the given time is in current bucket, otherwise false
-     * @since 1.5.0
+     * 判断时间是否在该时间窗口范围内
      */
     public boolean isTimeInWindow(long timeMillis) {
         return windowStart <= timeMillis && timeMillis < windowStart + windowLengthInMs;
@@ -91,9 +87,9 @@ public class WindowWrap<T> {
     @Override
     public String toString() {
         return "WindowWrap{" +
-            "windowLengthInMs=" + windowLengthInMs +
-            ", windowStart=" + windowStart +
-            ", value=" + value +
-            '}';
+                "windowLengthInMs=" + windowLengthInMs +
+                ", windowStart=" + windowStart +
+                ", value=" + value +
+                '}';
     }
 }

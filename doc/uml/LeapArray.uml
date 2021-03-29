@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.alibaba.csp.sentinel.slots.statistic.base.LeapArray</OriginalElement>
+  <nodes>
+    <node x="469.0" y="93.0">com.alibaba.csp.sentinel.slots.statistic.metric.occupy.FutureBucketLeapArray</node>
+    <node x="203.0" y="93.0">com.alibaba.csp.sentinel.cluster.flow.statistic.metric.ClusterMetricLeapArray</node>
+    <node x="1506.0" y="93.0">com.alibaba.csp.sentinel.slots.statistic.metric.HotParameterLeapArray</node>
+    <node x="1312.0" y="93.0">com.alibaba.csp.sentinel.slots.statistic.base.UnaryLeapArray</node>
+    <node x="798.0" y="0.0">com.alibaba.csp.sentinel.slots.statistic.base.LeapArray</node>
+    <node x="0.0" y="93.0">com.alibaba.csp.sentinel.slots.statistic.metric.BucketLeapArray</node>
+    <node x="1019.0" y="93.0">com.alibaba.csp.sentinel.slots.statistic.metric.occupy.OccupiableBucketLeapArray</node>
+    <node x="726.0" y="93.0">com.alibaba.csp.sentinel.cluster.flow.statistic.metric.ClusterParameterLeapArray</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.alibaba.csp.sentinel.slots.statistic.base.UnaryLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="1399.0" y="63.0" />
+      <point x="899.3571428571429" y="63.0" />
+      <point x="36.85714285714289" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.cluster.flow.statistic.metric.ClusterParameterLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.statistic.metric.HotParameterLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="1624.5" y="53.0" />
+      <point x="917.7857142857143" y="53.0" />
+      <point x="55.285714285714334" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.cluster.flow.statistic.metric.ClusterMetricLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="326.0" y="63.0" />
+      <point x="825.6428571428571" y="63.0" />
+      <point x="-36.85714285714289" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.statistic.metric.occupy.OccupiableBucketLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="1155.5" y="73.0" />
+      <point x="880.9285714285714" y="73.0" />
+      <point x="18.428571428571445" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.statistic.metric.BucketLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="91.5" y="53.0" />
+      <point x="807.2142857142858" y="53.0" />
+      <point x="-55.28571428571422" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.slots.statistic.metric.occupy.FutureBucketLeapArray" target="com.alibaba.csp.sentinel.slots.statistic.base.LeapArray">
+      <point x="0.0" y="-16.5" />
+      <point x="587.5" y="73.0" />
+      <point x="844.0714285714286" y="73.0" />
+      <point x="-18.428571428571445" y="16.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.7992058990357346" x="861.5" y="63.34279630943928" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

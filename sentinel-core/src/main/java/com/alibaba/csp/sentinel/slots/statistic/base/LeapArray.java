@@ -15,13 +15,13 @@
  */
 package com.alibaba.csp.sentinel.slots.statistic.base;
 
+import com.alibaba.csp.sentinel.util.AssertUtil;
+import com.alibaba.csp.sentinel.util.TimeUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.alibaba.csp.sentinel.util.AssertUtil;
-import com.alibaba.csp.sentinel.util.TimeUtil;
 
 /**
  * <p>
@@ -40,8 +40,19 @@ import com.alibaba.csp.sentinel.util.TimeUtil;
  */
 public abstract class LeapArray<T> {
 
+    /**
+     * 每个时间窗口时长
+     */
     protected int windowLengthInMs;
+
+    /**
+     * 时间窗口个数
+     */
     protected int sampleCount;
+
+    /**
+     * 时间总长
+     */
     protected int intervalInMs;
 
     protected final AtomicReferenceArray<WindowWrap<T>> array;
@@ -70,7 +81,7 @@ public abstract class LeapArray<T> {
     }
 
     /**
-     * Get the bucket at current timestamp.
+     * 获取当前时间窗口
      *
      * @return the bucket at current timestamp
      */
@@ -97,8 +108,7 @@ public abstract class LeapArray<T> {
 
     private int calculateTimeIdx(/*@Valid*/ long timeMillis) {
         long timeId = timeMillis / windowLengthInMs;
-        // Calculate current index so we can map the timestamp to the leap array.
-        return (int)(timeId % array.length());
+        return (int) (timeId % array.length());
     }
 
     protected long calculateWindowStart(/*@Valid*/ long timeMillis) {
@@ -106,7 +116,16 @@ public abstract class LeapArray<T> {
     }
 
     /**
-     * Get bucket item at provided timestamp.
+     * 获取当前时间窗口
+     *
+     * 1. 判断当前时间小于0直接返回空
+     * 2. 计算当前时间相对于时间窗口长度过了多少个时间窗口， 然后计算出数组索引下标
+     * 3. 计算当前时间时间窗口的起始时间
+     * 4. 根据计算出来的时间窗口下标
+     * 5. 获取窗口的统计数据
+     * 6. 如果滑动窗口不存在，则创建窗口然后CAS进行设置， 设置失败放弃CPU， 等待下一轮直接获取别的线程创建好的
+     * 7. 如果窗口存在， 判断窗口起始时间是否相等，相等则意味着窗口获取成功，直接返回
+     * 8. 如果窗口存在， 判断窗口起始时间小于当前窗口时间，则窗口较老可以弃用， 创建新的窗口然后上锁，重置窗口开始时间
      *
      * @param timeMillis a valid timestamp in milliseconds
      * @return current bucket item at provided timestamp if the time is valid; null if time is invalid
@@ -225,7 +244,7 @@ public abstract class LeapArray<T> {
     }
 
     /**
-     * Get the previous bucket item for current timestamp.
+     * 获取上一个窗口
      *
      * @return the previous bucket item for current timestamp
      */

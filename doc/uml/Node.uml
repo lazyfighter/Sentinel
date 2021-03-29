@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.alibaba.csp.sentinel.node.EntranceNode</OriginalElement>
+  <nodes>
+    <node x="0.0" y="0.0">com.alibaba.csp.sentinel.slots.statistic.metric.DebugSupport</node>
+    <node x="11.249999999999972" y="249.0">com.alibaba.csp.sentinel.node.DefaultNode</node>
+    <node x="85.74999999999999" y="166.0">com.alibaba.csp.sentinel.node.StatisticNode</node>
+    <node x="175.99999999999997" y="0.0">com.alibaba.csp.sentinel.node.OccupySupport</node>
+    <node x="126.24999999999999" y="83.0">com.alibaba.csp.sentinel.node.Node</node>
+    <node x="6.749999999999972" y="332.0">com.alibaba.csp.sentinel.node.EntranceNode</node>
+    <node x="178.24999999999997" y="249.0">com.alibaba.csp.sentinel.node.ClusterNode</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.alibaba.csp.sentinel.node.StatisticNode" target="com.alibaba.csp.sentinel.node.Node">
+      <point x="0.0" y="-16.5" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.node.Node" target="com.alibaba.csp.sentinel.node.OccupySupport">
+      <point x="21.0" y="-16.5" />
+      <point x="189.25" y="58.0" />
+      <point x="258.5" y="58.0" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.node.ClusterNode" target="com.alibaba.csp.sentinel.node.StatisticNode">
+      <point x="0.0" y="-16.5" />
+      <point x="251.74999999999997" y="224.0" />
+      <point x="209.5" y="224.0" />
+      <point x="41.25" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.node.EntranceNode" target="com.alibaba.csp.sentinel.node.DefaultNode">
+      <point x="0.0" y="-16.5" />
+      <point x="0.0" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.node.DefaultNode" target="com.alibaba.csp.sentinel.node.StatisticNode">
+      <point x="0.0" y="-16.5" />
+      <point x="84.74999999999997" y="224.0" />
+      <point x="126.99999999999999" y="224.0" />
+      <point x="-41.25" y="16.5" />
+    </edge>
+    <edge source="com.alibaba.csp.sentinel.node.Node" target="com.alibaba.csp.sentinel.slots.statistic.metric.DebugSupport">
+      <point x="-21.0" y="-16.5" />
+      <point x="147.25" y="58.0" />
+      <point x="78.0" y="58.0" />
+      <point x="0.0" y="16.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="170.5" y="182.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

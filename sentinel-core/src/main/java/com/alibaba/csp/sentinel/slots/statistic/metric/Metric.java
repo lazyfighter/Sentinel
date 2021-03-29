@@ -15,11 +15,11 @@
  */
 package com.alibaba.csp.sentinel.slots.statistic.metric;
 
-import java.util.List;
-
 import com.alibaba.csp.sentinel.node.metric.MetricNode;
 import com.alibaba.csp.sentinel.slots.statistic.data.MetricBucket;
 import com.alibaba.csp.sentinel.util.function.Predicate;
+
+import java.util.List;
 
 /**
  * Represents a basic structure recording invocation metrics of protected resources.
@@ -30,58 +30,42 @@ import com.alibaba.csp.sentinel.util.function.Predicate;
 public interface Metric extends DebugSupport {
 
     /**
-     * Get total success count.
-     *
-     * @return success count
+     * 获取成功通过数量
      */
     long success();
 
     /**
-     * Get max success count.
-     *
-     * @return max success count
+     * 获取最大成功通过数量
      */
     long maxSuccess();
 
     /**
-     * Get total exception count.
-     *
-     * @return exception count
+     * 获取异常总数
      */
     long exception();
 
     /**
-     * Get total block count.
-     *
-     * @return block count
+     * 获取限流阻塞主请求数量
      */
     long block();
 
     /**
-     * Get total pass count. not include {@link #occupiedPass()}
-     *
-     * @return pass count
+     * 获取总请求数量 不包含{@link #occupiedPass()}
      */
     long pass();
 
     /**
-     * Get total response time.
-     *
-     * @return total RT
+     * 获取总的rt时间
      */
     long rt();
 
     /**
-     * Get the minimal RT.
-     *
-     * @return minimal RT
+     * 获取最小的rt时间
      */
     long minRt();
 
     /**
-     * Get aggregated metric nodes of all resources.
-     *
-     * @return metric node list of all resources
+     * 获取资源的所有打点node接单
      */
     List<MetricNode> details();
 

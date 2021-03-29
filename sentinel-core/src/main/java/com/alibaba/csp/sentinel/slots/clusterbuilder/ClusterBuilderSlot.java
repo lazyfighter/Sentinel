@@ -15,21 +15,17 @@
  */
 package com.alibaba.csp.sentinel.slots.clusterbuilder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.context.Context;
 import com.alibaba.csp.sentinel.context.ContextUtil;
-import com.alibaba.csp.sentinel.node.ClusterNode;
-import com.alibaba.csp.sentinel.node.DefaultNode;
-import com.alibaba.csp.sentinel.node.IntervalProperty;
-import com.alibaba.csp.sentinel.node.Node;
-import com.alibaba.csp.sentinel.node.SampleCountProperty;
+import com.alibaba.csp.sentinel.node.*;
 import com.alibaba.csp.sentinel.slotchain.AbstractLinkedProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.ProcessorSlotChain;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.slotchain.StringResourceWrapper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -68,11 +64,20 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
 
     private static final Object lock = new Object();
 
+    /**
+     * 某个资源的统计node，
+     * 因为ProcessorSlotChain 是按照resource进行构建的， 也就是每个资源都一个自己一个ClusterBuilderSlot 实例，
+     * 因此实例中的类变量， 即为resource共享的
+     */
     private volatile ClusterNode clusterNode = null;
 
+
     @Override
-    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args)
-        throws Throwable {
+    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args) throws Throwable {
+
+        /**
+         * 判断统计node节点是否为空，  如果为空进行构建
+         */
         if (clusterNode == null) {
             synchronized (lock) {
                 if (clusterNode == null) {

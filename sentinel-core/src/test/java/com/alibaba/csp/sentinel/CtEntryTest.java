@@ -109,8 +109,7 @@ public class CtEntryTest {
     @Test
     public void testGetLastNode() {
         Context context = new NullContext();
-        CtEntry entry = new CtEntry(new StringResourceWrapper("testGetLastNode", EntryType.IN),
-            null, context);
+        CtEntry entry = new CtEntry(new StringResourceWrapper("testGetLastNode", EntryType.IN), null, context);
         assertNull(entry.parent);
         assertNull(entry.getLastNode());
         Entry parentEntry = mock(Entry.class);

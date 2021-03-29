@@ -125,10 +125,44 @@ import java.util.Map;
 public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
 
     /**
-     *
+     * key 上下文名称
+     * value
      */
     private volatile Map<String, DefaultNode> map = new HashMap<>(10);
 
+    /**
+     *
+     *                  machine-root ----------------------------主节点，统计所有数据
+     *                  /         \
+     *                 /           \
+     *         EntranceNode1   EntranceNode2---------------------上下文节点， 不同上下文名称，拥有自己的node
+     *               /               \
+     *              /                 \
+     *      DefaultNode(nodeA)   DefaultNode(nodeA)--------------资源节点，不同上下文， 拥有自己的统计节点
+     *             |                    |
+     *             +- - - - - - - - - - +- - - - - - -> ClusterNode(nodeA); ----------------ClusterBuilderSlot负责， 相同资源共享一个统计节点， 可以统计资源的所有访问量
+     *           /                        \
+     *   DefaultNode(nodeB)         DefaultNode(nodeB)--------------资源节点B，在资源节点A没有退出，再次请求资源B的时候会作为资源A的子节点， 进行资源请求， 之后可以依次退出资源B  资源A
+     *
+     *    ContextUtil.enter("entrance2", "appA");
+     *    nodeA = SphU.entry("nodeA");
+     *    if (nodeA != null) {
+     *        nodeB = SphU.entry("nodeB");
+     *        if (nodeB != null) {
+     *            nodeB.exit();
+     *        }
+     *        nodeA.exit();
+     *    }
+     *    ContextUtil.exit();
+     *
+     * @param context         current {@link Context}
+     * @param resourceWrapper current resource
+     * @param obj
+     * @param count           tokens needed
+     * @param prioritized     whether the entry is prioritized
+     * @param args            parameters of the original call
+     * @throws Throwable
+     */
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, Object obj, int count, boolean prioritized, Object... args) throws Throwable {
         DefaultNode node = map.get(context.getName());

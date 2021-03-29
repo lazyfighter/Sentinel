@@ -15,15 +15,15 @@
  */
 package com.alibaba.csp.sentinel.node;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.alibaba.csp.sentinel.log.RecordLog;
 import com.alibaba.csp.sentinel.SphO;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.context.Context;
+import com.alibaba.csp.sentinel.log.RecordLog;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.slots.nodeselector.NodeSelectorSlot;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>
@@ -37,6 +37,8 @@ import com.alibaba.csp.sentinel.slots.nodeselector.NodeSelectorSlot;
  *
  * @author qinan.qn
  * @see NodeSelectorSlot
+ * <p>
+ * 资源统计  对应不同的context
  */
 public class DefaultNode extends StatisticNode {
 
@@ -46,12 +48,12 @@ public class DefaultNode extends StatisticNode {
     private ResourceWrapper id;
 
     /**
-     * The list of all child nodes.
+     * 资源还未退出的时候，  同一个context在请求别的资源 ，  那么创建的节点为本节点的子节点
      */
     private volatile Set<Node> childList = new HashSet<>();
 
     /**
-     * Associated cluster node.
+     * 关联的集群统计节点
      */
     private ClusterNode clusterNode;
 
@@ -91,7 +93,7 @@ public class DefaultNode extends StatisticNode {
                     childList = newSet;
                 }
             }
-            RecordLog.info("Add child <{0}> to node <{1}>", ((DefaultNode)node).id.getName(), id.getName());
+            RecordLog.info("Add child <{0}> to node <{1}>", ((DefaultNode) node).id.getName(), id.getName());
         }
     }
 
@@ -152,17 +154,17 @@ public class DefaultNode extends StatisticNode {
         }
         if (!(node instanceof EntranceNode)) {
             System.out.println(
-                String.format("%s(thread:%s pq:%s bq:%s tq:%s rt:%s 1mp:%s 1mb:%s 1mt:%s)", node.id.getShowName(),
-                    node.curThreadNum(), node.passQps(), node.blockQps(), node.totalQps(), node.avgRt(),
-                    node.totalRequest() - node.blockRequest(), node.blockRequest(), node.totalRequest()));
+                    String.format("%s(thread:%s pq:%s bq:%s tq:%s rt:%s 1mp:%s 1mb:%s 1mt:%s)", node.id.getShowName(),
+                            node.curThreadNum(), node.passQps(), node.blockQps(), node.totalQps(), node.avgRt(),
+                            node.totalRequest() - node.blockRequest(), node.blockRequest(), node.totalRequest()));
         } else {
             System.out.println(
-                String.format("Entry-%s(t:%s pq:%s bq:%s tq:%s rt:%s 1mp:%s 1mb:%s 1mt:%s)", node.id.getShowName(),
-                    node.curThreadNum(), node.passQps(), node.blockQps(), node.totalQps(), node.avgRt(),
-                    node.totalRequest() - node.blockRequest(), node.blockRequest(), node.totalRequest()));
+                    String.format("Entry-%s(t:%s pq:%s bq:%s tq:%s rt:%s 1mp:%s 1mb:%s 1mt:%s)", node.id.getShowName(),
+                            node.curThreadNum(), node.passQps(), node.blockQps(), node.totalQps(), node.avgRt(),
+                            node.totalRequest() - node.blockRequest(), node.blockRequest(), node.totalRequest()));
         }
         for (Node n : node.getChildList()) {
-            DefaultNode dn = (DefaultNode)n;
+            DefaultNode dn = (DefaultNode) n;
             visitTree(level + 1, dn);
         }
     }

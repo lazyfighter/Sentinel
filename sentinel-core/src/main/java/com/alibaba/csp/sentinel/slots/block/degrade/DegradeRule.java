@@ -56,39 +56,42 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DegradeRule extends AbstractRule {
 
     @SuppressWarnings("PMD.ThreadPoolCreationRule")
-    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(
-        Runtime.getRuntime().availableProcessors(), new NamedThreadFactory("sentinel-degrade-reset-task", true));
+    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), new NamedThreadFactory("sentinel-degrade-reset-task", true));
 
-    public DegradeRule() {}
+    public DegradeRule() {
+    }
 
     public DegradeRule(String resourceName) {
         setResource(resourceName);
     }
 
     /**
-     * RT threshold or exception ratio threshold count.
+     * 降级RT  或者 异常率阈值
      */
     private double count;
 
     /**
-     * Degrade recover timeout (in seconds) when degradation occurs.
+     * 降级恢复时长， 过了timeWindow尝试恢复
      */
     private int timeWindow;
 
     /**
-     * Degrade strategy (0: average RT, 1: exception ratio, 2: exception count).
+     * 降级规则：
+     * 0 平均RT
+     * 1 异常率
+     * 2 异常数量
      */
     private int grade = RuleConstant.DEGRADE_GRADE_RT;
 
     /**
-     * Minimum number of consecutive slow requests that can trigger RT circuit breaking.
+     * 当触发RT降级的时候， 允许通过的最少慢请求数量
      *
      * @since 1.7.0
      */
     private int rtSlowRequestAmount = RuleConstant.DEGRADE_DEFAULT_SLOW_REQUEST_AMOUNT;
 
     /**
-     * Minimum number of requests (in an active statistic time span) that can trigger circuit breaking.
+     * 触发阈值降级， 最少请求数量
      *
      * @since 1.7.0
      */
@@ -141,15 +144,21 @@ public class DegradeRule extends AbstractRule {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         DegradeRule that = (DegradeRule) o;
         return Double.compare(that.count, count) == 0 &&
-            timeWindow == that.timeWindow &&
-            grade == that.grade &&
-            rtSlowRequestAmount == that.rtSlowRequestAmount &&
-            minRequestAmount == that.minRequestAmount;
+                timeWindow == that.timeWindow &&
+                grade == that.grade &&
+                rtSlowRequestAmount == that.rtSlowRequestAmount &&
+                minRequestAmount == that.minRequestAmount;
     }
 
     @Override
@@ -166,27 +175,35 @@ public class DegradeRule extends AbstractRule {
     @Override
     public String toString() {
         return "DegradeRule{" +
-            "resource=" + getResource() +
-            ", grade=" + grade +
-            ", count=" + count +
-            ", limitApp=" + getLimitApp() +
-            ", timeWindow=" + timeWindow +
-            ", rtSlowRequestAmount=" + rtSlowRequestAmount +
-            ", minRequestAmount=" + minRequestAmount +
-            "}";
+                "resource=" + getResource() +
+                ", grade=" + grade +
+                ", count=" + count +
+                ", limitApp=" + getLimitApp() +
+                ", timeWindow=" + timeWindow +
+                ", rtSlowRequestAmount=" + rtSlowRequestAmount +
+                ", minRequestAmount=" + minRequestAmount +
+                "}";
     }
 
     // Internal implementation (will be deprecated and moved outside).
 
+    /**
+     * 通过的请求数量
+     */
     private AtomicLong passCount = new AtomicLong(0);
+
+    /**
+     * 是否降级
+     */
     private final AtomicBoolean cut = new AtomicBoolean(false);
 
     @Override
     public boolean passCheck(Context context, DefaultNode node, int acquireCount, Object... args) {
+        // 降级直接返回
         if (cut.get()) {
             return false;
         }
-
+        // 获取统计数据node
         ClusterNode clusterNode = ClusterBuilderSlot.getClusterNode(this.getResource());
         if (clusterNode == null) {
             return true;
@@ -198,11 +215,11 @@ public class DegradeRule extends AbstractRule {
                 passCount.set(0);
                 return true;
             }
-
             // Sentinel will degrade the service only if count exceeds.
             if (passCount.incrementAndGet() < rtSlowRequestAmount) {
                 return true;
             }
+
         } else if (grade == RuleConstant.DEGRADE_GRADE_EXCEPTION_RATIO) {
             double exception = clusterNode.exceptionQps();
             double success = clusterNode.successQps();

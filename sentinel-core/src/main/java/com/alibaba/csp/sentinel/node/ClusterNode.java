@@ -50,7 +50,7 @@ public class ClusterNode extends StatisticNode {
      * at the very beginning while concurrent map will hold the lock all the time.
      * </p>
      */
-    private Map<String, StatisticNode> originCountMap = new HashMap<String, StatisticNode>();
+    private Map<String, StatisticNode> originCountMap = new HashMap<>();
 
     private final ReentrantLock lock = new ReentrantLock();
 

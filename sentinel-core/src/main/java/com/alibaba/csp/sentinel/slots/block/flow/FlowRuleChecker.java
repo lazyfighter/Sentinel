@@ -55,25 +55,64 @@ public class FlowRuleChecker {
         }
     }
 
-    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount) {
+    /**
+     * 检查请求资源是否能够通过
+     *
+     * @param rule         规则
+     * @param context      上下文
+     * @param node         节点
+     * @param acquireCount 需要资源数量
+     * @return
+     */
+    public boolean canPassCheck(FlowRule rule, Context context, DefaultNode node, int acquireCount) {
         return canPassCheck(rule, context, node, acquireCount, false);
     }
 
-    public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount, boolean prioritized) {
+
+    /**
+     * 带优先级检查请求资源是否能够通过
+     *
+     * @param rule         规则
+     * @param context      上下文
+     * @param node         节点
+     * @param acquireCount 需求资源数量
+     * @param prioritized  是否优先
+     * @return
+     */
+    public boolean canPassCheck(FlowRule rule, Context context, DefaultNode node, int acquireCount, boolean prioritized) {
+        /**
+         * 默认为default， 限制所有流浪  不区分流浪来源
+         */
         String limitApp = rule.getLimitApp();
         if (limitApp == null) {
             return true;
         }
 
+        /**
+         * 集群模式
+         */
         if (rule.isClusterMode()) {
             return passClusterCheck(rule, context, node, acquireCount, prioritized);
         }
 
+        /**
+         * 本地限流模式
+         */
         return passLocalCheck(rule, context, node, acquireCount, prioritized);
     }
 
-    private static boolean passLocalCheck(FlowRule rule, Context context, DefaultNode node, int acquireCount,
-                                          boolean prioritized) {
+
+    /**
+     * 本地检查模式，  检查请求资源能否通过
+     *
+     * @param rule         规则
+     * @param context      上下文
+     * @param node         节点
+     * @param acquireCount 需求数量
+     * @param prioritized  是否优先
+     * @return
+     */
+    private static boolean passLocalCheck(FlowRule rule, Context context, DefaultNode node, int acquireCount, boolean prioritized) {
         Node selectedNode = selectNodeByRequesterAndStrategy(rule, context, node);
         if (selectedNode == null) {
             return true;
@@ -82,6 +121,12 @@ public class FlowRuleChecker {
         return rule.getRater().canPass(selectedNode, acquireCount, prioritized);
     }
 
+    /**
+     * @param rule
+     * @param context
+     * @param node
+     * @return
+     */
     static Node selectReferenceNode(FlowRule rule, Context context, DefaultNode node) {
         String refResource = rule.getRefResource();
         int strategy = rule.getStrategy();
@@ -109,25 +154,33 @@ public class FlowRuleChecker {
         return !RuleConstant.LIMIT_APP_DEFAULT.equals(origin) && !RuleConstant.LIMIT_APP_OTHER.equals(origin);
     }
 
-    static Node selectNodeByRequesterAndStrategy(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node) {
-        // The limit app should not be empty.
-        String limitApp = rule.getLimitApp();
-        int strategy = rule.getStrategy();
-        String origin = context.getOrigin();
 
+    /**
+     * @param rule    规则
+     * @param context 上下文
+     * @param node    节点
+     * @return
+     */
+    static Node selectNodeByRequesterAndStrategy(FlowRule rule, Context context, DefaultNode node) {
+        // 限流app， 创建的flowRule， 如果没有指定limitApp 默认为default
+        String limitApp = rule.getLimitApp();
+        // 限流模式
+        int strategy = rule.getStrategy();
+        // 流量来源
+        String origin = context.getOrigin();
+        // 流量来源与规则指定的相同
         if (limitApp.equals(origin) && filterOrigin(origin)) {
             if (strategy == RuleConstant.STRATEGY_DIRECT) {
                 // Matches limit origin, return origin statistic node.
                 return context.getOriginNode();
             }
-
             return selectReferenceNode(rule, context, node);
+        // 不按照流量来源进行限制，则返回clusterNode 完整流量统计节点
         } else if (RuleConstant.LIMIT_APP_DEFAULT.equals(limitApp)) {
             if (strategy == RuleConstant.STRATEGY_DIRECT) {
                 // Return the cluster node.
                 return node.getClusterNode();
             }
-
             return selectReferenceNode(rule, context, node);
         } else if (RuleConstant.LIMIT_APP_OTHER.equals(limitApp) && FlowRuleManager.isOtherOrigin(origin, rule.getResource())) {
             if (strategy == RuleConstant.STRATEGY_DIRECT) {
