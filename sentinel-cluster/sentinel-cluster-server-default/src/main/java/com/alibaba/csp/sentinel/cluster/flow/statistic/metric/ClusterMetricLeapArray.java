@@ -52,7 +52,7 @@ public class ClusterMetricLeapArray extends LeapArray<ClusterMetricBucket> {
         return w;
     }
 
-    private void transferOccupyToBucket(/*@Valid*/ ClusterMetricBucket bucket) {
+    private void transferOccupyToBucket(ClusterMetricBucket bucket) {
         if (hasOccupied) {
             transferOccupiedCount(bucket, ClusterFlowEvent.PASS, ClusterFlowEvent.OCCUPIED_PASS);
             transferOccupiedThenReset(bucket, ClusterFlowEvent.PASS);

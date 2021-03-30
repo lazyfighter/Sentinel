@@ -52,7 +52,7 @@ public class DefaultSlotChainBuilder implements SlotChainBuilder {
         chain.addLast(new LogSlot());
 
         /**
-         *
+         * 统计节点
          */
         chain.addLast(new StatisticSlot());
         /**
