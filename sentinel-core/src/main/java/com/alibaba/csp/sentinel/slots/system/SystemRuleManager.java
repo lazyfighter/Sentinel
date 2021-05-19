@@ -329,7 +329,7 @@ public final class SystemRuleManager {
         }
 
         // for inbound traffic only
-        if (resourceWrapper.getType() != EntryType.IN) {
+        if (resourceWrapper.getEntryType() != EntryType.IN) {
             return;
         }
 

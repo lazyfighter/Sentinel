@@ -15,17 +15,23 @@
  */
 package com.alibaba.csp.sentinel.slots.clusterbuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.alibaba.csp.sentinel.Constants;
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.context.Context;
 import com.alibaba.csp.sentinel.context.ContextUtil;
-import com.alibaba.csp.sentinel.node.*;
+import com.alibaba.csp.sentinel.node.ClusterNode;
+import com.alibaba.csp.sentinel.node.DefaultNode;
+import com.alibaba.csp.sentinel.node.IntervalProperty;
+import com.alibaba.csp.sentinel.node.Node;
+import com.alibaba.csp.sentinel.node.SampleCountProperty;
 import com.alibaba.csp.sentinel.slotchain.AbstractLinkedProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.ProcessorSlotChain;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.slotchain.StringResourceWrapper;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.alibaba.csp.sentinel.spi.Spi;
 
 /**
  * <p>
@@ -40,12 +46,13 @@ import java.util.Map;
  *
  * @author jialiang.linjl
  */
+@Spi(isSingleton = false, order = Constants.ORDER_CLUSTER_BUILDER_SLOT)
 public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
     /**
      * <p>
      * Remember that same resource({@link ResourceWrapper#equals(Object)}) will share
-     * the same {@link ProcessorSlotChain} globally, no matter in witch context. So if
+     * the same {@link ProcessorSlotChain} globally, no matter in which context. So if
      * code goes into {@link #entry(Context, ResourceWrapper, DefaultNode, int, boolean, Object...)},
      * the resource name must be same but context name may not.
      * </p>
@@ -64,25 +71,17 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
 
     private static final Object lock = new Object();
 
-    /**
-     * 某个资源的统计node，
-     * 因为ProcessorSlotChain 是按照resource进行构建的， 也就是每个资源都一个自己一个ClusterBuilderSlot 实例，
-     * 因此实例中的类变量， 即为resource共享的
-     */
     private volatile ClusterNode clusterNode = null;
 
-
     @Override
-    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args) throws Throwable {
-
-        /**
-         * 判断统计node节点是否为空，  如果为空进行构建
-         */
+    public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count,
+                      boolean prioritized, Object... args)
+        throws Throwable {
         if (clusterNode == null) {
             synchronized (lock) {
                 if (clusterNode == null) {
                     // Create the cluster node.
-                    clusterNode = new ClusterNode();
+                    clusterNode = new ClusterNode(resourceWrapper.getName(), resourceWrapper.getResourceType());
                     HashMap<ResourceWrapper, ClusterNode> newMap = new HashMap<>(Math.max(clusterNodeMap.size(), 16));
                     newMap.putAll(clusterNodeMap);
                     newMap.put(node.getId(), clusterNode);

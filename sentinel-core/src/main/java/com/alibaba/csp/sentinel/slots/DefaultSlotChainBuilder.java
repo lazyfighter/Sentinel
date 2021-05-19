@@ -15,17 +15,16 @@
  */
 package com.alibaba.csp.sentinel.slots;
 
+import com.alibaba.csp.sentinel.log.RecordLog;
+import com.alibaba.csp.sentinel.slotchain.AbstractLinkedProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.DefaultProcessorSlotChain;
+import com.alibaba.csp.sentinel.slotchain.ProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.ProcessorSlotChain;
 import com.alibaba.csp.sentinel.slotchain.SlotChainBuilder;
-import com.alibaba.csp.sentinel.slots.block.authority.AuthoritySlot;
-import com.alibaba.csp.sentinel.slots.block.degrade.DegradeSlot;
-import com.alibaba.csp.sentinel.slots.block.flow.FlowSlot;
-import com.alibaba.csp.sentinel.slots.clusterbuilder.ClusterBuilderSlot;
-import com.alibaba.csp.sentinel.slots.logger.LogSlot;
-import com.alibaba.csp.sentinel.slots.nodeselector.NodeSelectorSlot;
-import com.alibaba.csp.sentinel.slots.statistic.StatisticSlot;
-import com.alibaba.csp.sentinel.slots.system.SystemSlot;
+import com.alibaba.csp.sentinel.spi.Spi;
+import com.alibaba.csp.sentinel.spi.SpiLoader;
+
+import java.util.List;
 
 /**
  * Builder for a default {@link ProcessorSlotChain}.
@@ -33,46 +32,23 @@ import com.alibaba.csp.sentinel.slots.system.SystemSlot;
  * @author qinan.qn
  * @author leyou
  */
+@Spi(isDefault = true)
 public class DefaultSlotChainBuilder implements SlotChainBuilder {
 
     @Override
     public ProcessorSlotChain build() {
         ProcessorSlotChain chain = new DefaultProcessorSlotChain();
-        /**
-         * 构建context下面的node节点用于统计context资源
-         */
-        chain.addLast(new NodeSelectorSlot());
-        /**
-         * resource 全局资源统计
-         */
-        chain.addLast(new ClusterBuilderSlot());
-        /**
-         * 日志log
-         */
-        chain.addLast(new LogSlot());
 
-        /**
-         * 统计节点
-         */
-        chain.addLast(new StatisticSlot());
-        /**
-         * 黑白名单校验， 用于校验请求来源
-         */
-        chain.addLast(new AuthoritySlot());
-        /**
-         * 系统规则校验， 用于校验当前系统状态是否超过了用户配置的阈值
-         */
-        chain.addLast(new SystemSlot());
-        /**
-         * 限流检查
-         */
-        chain.addLast(new FlowSlot());
-        /**
-         * 降级检查
-         */
-        chain.addLast(new DegradeSlot());
+        List<ProcessorSlot> sortedSlotList = SpiLoader.of(ProcessorSlot.class).loadInstanceListSorted();
+        for (ProcessorSlot slot : sortedSlotList) {
+            if (!(slot instanceof AbstractLinkedProcessorSlot)) {
+                RecordLog.warn("The ProcessorSlot(" + slot.getClass().getCanonicalName() + ") is not an instance of AbstractLinkedProcessorSlot, can't be added into ProcessorSlotChain");
+                continue;
+            }
+
+            chain.addLast((AbstractLinkedProcessorSlot<?>) slot);
+        }
 
         return chain;
     }
-
 }

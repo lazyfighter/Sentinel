@@ -15,19 +15,10 @@
  */
 package com.alibaba.csp.sentinel.slots.block.degrade;
 
-import com.alibaba.csp.sentinel.concurrent.NamedThreadFactory;
-import com.alibaba.csp.sentinel.context.Context;
-import com.alibaba.csp.sentinel.node.ClusterNode;
-import com.alibaba.csp.sentinel.node.DefaultNode;
 import com.alibaba.csp.sentinel.slots.block.AbstractRule;
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
-import com.alibaba.csp.sentinel.slots.clusterbuilder.ClusterBuilderSlot;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Objects;
 
 /**
  * <p>
@@ -52,50 +43,45 @@ import java.util.concurrent.atomic.AtomicLong;
  * </ul>
  *
  * @author jialiang.linjl
+ * @author Eric Zhao
  */
 public class DegradeRule extends AbstractRule {
 
-    @SuppressWarnings("PMD.ThreadPoolCreationRule")
-    private static ScheduledExecutorService pool = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), new NamedThreadFactory("sentinel-degrade-reset-task", true));
-
-    public DegradeRule() {
-    }
+    public DegradeRule() {}
 
     public DegradeRule(String resourceName) {
         setResource(resourceName);
     }
 
     /**
-     * 降级RT  或者 异常率阈值
-     */
-    private double count;
-
-    /**
-     * 降级恢复时长， 过了timeWindow尝试恢复
-     */
-    private int timeWindow;
-
-    /**
-     * 降级规则：
-     * 0 平均RT
-     * 1 异常率
-     * 2 异常数量
+     * Circuit breaking strategy (0: average RT, 1: exception ratio, 2: exception count).
      */
     private int grade = RuleConstant.DEGRADE_GRADE_RT;
 
     /**
-     * 当触发RT降级的时候， 允许通过的最少慢请求数量
-     *
-     * @since 1.7.0
+     * Threshold count.
      */
-    private int rtSlowRequestAmount = RuleConstant.DEGRADE_DEFAULT_SLOW_REQUEST_AMOUNT;
+    private double count;
 
     /**
-     * 触发阈值降级， 最少请求数量
+     * Recovery timeout (in seconds) when circuit breaker opens. After the timeout, the circuit breaker will
+     * transform to half-open state for trying a few requests.
+     */
+    private int timeWindow;
+
+    /**
+     * Minimum number of requests (in an active statistic time span) that can trigger circuit breaking.
      *
      * @since 1.7.0
      */
     private int minRequestAmount = RuleConstant.DEGRADE_DEFAULT_MIN_REQUEST_AMOUNT;
+
+    /**
+     * The threshold of slow request ratio in RT mode.
+     */
+    private double slowRatioThreshold = 1.0d;
+
+    private int statIntervalMs = 1000;
 
     public int getGrade() {
         return grade;
@@ -124,15 +110,6 @@ public class DegradeRule extends AbstractRule {
         return this;
     }
 
-    public int getRtSlowRequestAmount() {
-        return rtSlowRequestAmount;
-    }
-
-    public DegradeRule setRtSlowRequestAmount(int rtSlowRequestAmount) {
-        this.rtSlowRequestAmount = rtSlowRequestAmount;
-        return this;
-    }
-
     public int getMinRequestAmount() {
         return minRequestAmount;
     }
@@ -142,130 +119,55 @@ public class DegradeRule extends AbstractRule {
         return this;
     }
 
+    public double getSlowRatioThreshold() {
+        return slowRatioThreshold;
+    }
+
+    public DegradeRule setSlowRatioThreshold(double slowRatioThreshold) {
+        this.slowRatioThreshold = slowRatioThreshold;
+        return this;
+    }
+
+    public int getStatIntervalMs() {
+        return statIntervalMs;
+    }
+
+    public DegradeRule setStatIntervalMs(int statIntervalMs) {
+        this.statIntervalMs = statIntervalMs;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        DegradeRule that = (DegradeRule) o;
-        return Double.compare(that.count, count) == 0 &&
-                timeWindow == that.timeWindow &&
-                grade == that.grade &&
-                rtSlowRequestAmount == that.rtSlowRequestAmount &&
-                minRequestAmount == that.minRequestAmount;
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        if (!super.equals(o)) { return false; }
+        DegradeRule rule = (DegradeRule)o;
+        return Double.compare(rule.count, count) == 0 &&
+            timeWindow == rule.timeWindow &&
+            grade == rule.grade &&
+            minRequestAmount == rule.minRequestAmount &&
+            Double.compare(rule.slowRatioThreshold, slowRatioThreshold) == 0 &&
+            statIntervalMs == rule.statIntervalMs;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + new Double(count).hashCode();
-        result = 31 * result + timeWindow;
-        result = 31 * result + grade;
-        result = 31 * result + rtSlowRequestAmount;
-        result = 31 * result + minRequestAmount;
-        return result;
+        return Objects.hash(super.hashCode(), count, timeWindow, grade, minRequestAmount,
+            slowRatioThreshold, statIntervalMs);
     }
 
     @Override
     public String toString() {
         return "DegradeRule{" +
-                "resource=" + getResource() +
-                ", grade=" + grade +
-                ", count=" + count +
-                ", limitApp=" + getLimitApp() +
-                ", timeWindow=" + timeWindow +
-                ", rtSlowRequestAmount=" + rtSlowRequestAmount +
-                ", minRequestAmount=" + minRequestAmount +
-                "}";
-    }
-
-    // Internal implementation (will be deprecated and moved outside).
-
-    /**
-     * 通过的请求数量
-     */
-    private AtomicLong passCount = new AtomicLong(0);
-
-    /**
-     * 是否降级
-     */
-    private final AtomicBoolean cut = new AtomicBoolean(false);
-
-    @Override
-    public boolean passCheck(Context context, DefaultNode node, int acquireCount, Object... args) {
-        // 降级直接返回
-        if (cut.get()) {
-            return false;
-        }
-        // 获取统计数据node
-        ClusterNode clusterNode = ClusterBuilderSlot.getClusterNode(this.getResource());
-        if (clusterNode == null) {
-            return true;
-        }
-
-        if (grade == RuleConstant.DEGRADE_GRADE_RT) {
-            double rt = clusterNode.avgRt();
-            if (rt < this.count) {
-                passCount.set(0);
-                return true;
-            }
-            // Sentinel will degrade the service only if count exceeds.
-            if (passCount.incrementAndGet() < rtSlowRequestAmount) {
-                return true;
-            }
-
-        } else if (grade == RuleConstant.DEGRADE_GRADE_EXCEPTION_RATIO) {
-            double exception = clusterNode.exceptionQps();
-            double success = clusterNode.successQps();
-            double total = clusterNode.totalQps();
-            // If total amount is less than minRequestAmount, the request will pass.
-            if (total < minRequestAmount) {
-                return true;
-            }
-
-            // In the same aligned statistic time window,
-            // "success" (aka. completed count) = exception count + non-exception count (realSuccess)
-            double realSuccess = success - exception;
-            if (realSuccess <= 0 && exception < minRequestAmount) {
-                return true;
-            }
-
-            if (exception / success < count) {
-                return true;
-            }
-        } else if (grade == RuleConstant.DEGRADE_GRADE_EXCEPTION_COUNT) {
-            double exception = clusterNode.totalException();
-            if (exception < count) {
-                return true;
-            }
-        }
-
-        if (cut.compareAndSet(false, true)) {
-            ResetTask resetTask = new ResetTask(this);
-            pool.schedule(resetTask, timeWindow, TimeUnit.SECONDS);
-        }
-
-        return false;
-    }
-
-    private static final class ResetTask implements Runnable {
-
-        private DegradeRule rule;
-
-        ResetTask(DegradeRule rule) {
-            this.rule = rule;
-        }
-
-        @Override
-        public void run() {
-            rule.passCount.set(0);
-            rule.cut.set(false);
-        }
+            "resource=" + getResource() +
+            ", grade=" + grade +
+            ", count=" + count +
+            ", limitApp=" + getLimitApp() +
+            ", timeWindow=" + timeWindow +
+            ", minRequestAmount=" + minRequestAmount +
+            ", slowRatioThreshold=" + slowRatioThreshold +
+            ", statIntervalMs=" + statIntervalMs +
+            '}';
     }
 }
