@@ -81,7 +81,7 @@ public class FlowRuleChecker {
      */
     public boolean canPassCheck(FlowRule rule, Context context, DefaultNode node, int acquireCount, boolean prioritized) {
         /**
-         * 默认为default， 限制所有流浪  不区分流浪来源
+         * 默认为default， 限制所有流量  不区分流量来源
          */
         String limitApp = rule.getLimitApp();
         if (limitApp == null) {

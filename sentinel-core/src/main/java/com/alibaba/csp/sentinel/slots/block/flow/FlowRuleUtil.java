@@ -250,12 +250,7 @@ public final class FlowRuleUtil {
         }
     }
 
-    private static final Function<FlowRule, String> extractResource = new Function<FlowRule, String>() {
-        @Override
-        public String apply(FlowRule rule) {
-            return rule.getResource();
-        }
-    };
+    private static final Function<FlowRule, String> extractResource = rule -> rule.getResource();
 
     private FlowRuleUtil() {
     }

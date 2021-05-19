@@ -15,26 +15,36 @@
  */
 package com.alibaba.csp.sentinel.slots.block;
 
-import com.alibaba.csp.sentinel.node.IntervalProperty;
-
 /**
  * @author youji.zj
  * @author jialiang.linjl
  */
 public final class RuleConstant {
 
+    /**
+     * thread规则标志限制
+     */
     public static final int FLOW_GRADE_THREAD = 0;
+
+    /**
+     * QPS规则标志
+     */
     public static final int FLOW_GRADE_QPS = 1;
 
+
+    /**
+     * 降级RT时间规则
+     */
     public static final int DEGRADE_GRADE_RT = 0;
     /**
-     * Degrade by biz exception ratio in the current {@link IntervalProperty#INTERVAL} second(s).
+     * 降级每分钟异常水位规则
      */
     public static final int DEGRADE_GRADE_EXCEPTION_RATIO = 1;
     /**
-     * Degrade by biz exception count in the last 60 seconds.
+     * 降级每分钟异常数量规则
      */
     public static final int DEGRADE_GRADE_EXCEPTION_COUNT = 2;
+
 
     public static final int DEGRADE_DEFAULT_SLOW_REQUEST_AMOUNT = 5;
     public static final int DEGRADE_DEFAULT_MIN_REQUEST_AMOUNT = 5;
@@ -74,5 +84,6 @@ public final class RuleConstant {
     public static final int DEFAULT_SAMPLE_COUNT = 2;
     public static final int DEFAULT_WINDOW_INTERVAL_MS = 1000;
 
-    private RuleConstant() {}
+    private RuleConstant() {
+    }
 }

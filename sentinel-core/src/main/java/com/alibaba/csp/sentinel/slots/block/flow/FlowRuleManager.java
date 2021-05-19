@@ -48,10 +48,15 @@ import com.alibaba.csp.sentinel.property.SentinelProperty;
  */
 public class FlowRuleManager {
 
+    /**
+     * key  为资源名称  value 为规则
+     */
     private static volatile Map<String, List<FlowRule>> flowRules = new HashMap<>();
 
     private static final FlowPropertyListener LISTENER = new FlowPropertyListener();
-    private static SentinelProperty<List<FlowRule>> currentProperty = new DynamicSentinelProperty<List<FlowRule>>();
+
+
+    private static SentinelProperty<List<FlowRule>> currentProperty = new DynamicSentinelProperty<>();
 
     @SuppressWarnings("PMD.ThreadPoolCreationRule")
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1,

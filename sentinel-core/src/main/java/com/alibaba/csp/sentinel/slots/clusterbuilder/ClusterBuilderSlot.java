@@ -66,11 +66,17 @@ public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode>
      * become. so we don't concurrent map but a lock. as this lock only happens
      * at the very beginning while concurrent map will hold the lock all the time.
      * </p>
+     *
+     * 类静态变量， 会保存所有的资源的流量， 无论它属于那个context
      */
     private static volatile Map<ResourceWrapper, ClusterNode> clusterNodeMap = new HashMap<>();
 
     private static final Object lock = new Object();
 
+
+    /**
+     * 某个resourceWrapper有自己的processorChain， 因此这个node 拥有统计了所有流量
+     */
     private volatile ClusterNode clusterNode = null;
 
     @Override
